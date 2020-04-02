@@ -1,11 +1,12 @@
 package parser;
 
 import expression.*;
-import parser.exception.ParserException;
 
 import java.util.Set;
 
-public class ExpressionParser extends BaseParser implements Parser {
+public class ExpressionParser extends BaseParser {
+
+    final String ELEMENT = "element";
 
     Set<String> operations = Set.of(
             "+",
@@ -18,12 +19,11 @@ public class ExpressionParser extends BaseParser implements Parser {
             "="
     );
 
-    @Override
     public Expression parse(String s) throws ParserException {
         setSource(new StringSource(s));
         Expression ans = parseExpression();
         if (hasNext()) {
-            throw new ParserException("SYNTAX ERROR");
+            throw new UnexpectedSymbolException("Cannot parse after " + getCh());
         }
         return ans;
     }
@@ -60,7 +60,7 @@ public class ExpressionParser extends BaseParser implements Parser {
             case ">":
                 return new Greater(first, second);
             default:
-                throw new ParserException("SYNTAX ERROR");
+                throw new UnknownTokenException("Invalid operator");
         }
     }
 
@@ -72,12 +72,12 @@ public class ExpressionParser extends BaseParser implements Parser {
                 return s;
             }
         }
-        throw new ParserException("SYNTAX ERROR");
+        throw new UnknownTokenException("Invalid operator");
     }
 
     private Expression parseSimple() throws ParserException {
-        if (String.copyValueOf(buffer, 0, 7).equals("element")) {
-            skipChars(7);
+        if (String.copyValueOf(buffer, 0, ELEMENT.length()).equals(ELEMENT)) {
+            skipChars(ELEMENT.length());
             return new Element();
         } else {
             return parseConstant();
@@ -97,7 +97,7 @@ public class ExpressionParser extends BaseParser implements Parser {
         try {
             return new Const(Integer.parseInt(sb.toString()));
         } catch (NumberFormatException e) {
-            throw new ParserException("SYNTAX ERROR");
+            throw new ConstantException("Incorrect integer " + sb.toString());
         }
     }
 }

@@ -1,4 +1,4 @@
-package expression.exception;
+package expression;
 
 public class TypeException extends RuntimeException {
 

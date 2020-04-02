@@ -1,7 +1,5 @@
 package parser;
 
-import parser.exception.ParserException;
-
 public class BaseParser {
     final int BUFFER_SIZE = 10;
     protected final char[] buffer = new char[BUFFER_SIZE];
@@ -41,7 +39,7 @@ public class BaseParser {
 
     protected void expect(final char c) throws ParserException {
         if (getCh() != c) {
-            throw new ParserException("SYNTAX ERROR");
+            throw new ParserException("Expected '" + c + "', found " + (getCh() == '\0'? "EOF" : "'" + getCh() + "'"));
         }
         nextChar();
     }

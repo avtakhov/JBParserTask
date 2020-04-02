@@ -1,13 +1,13 @@
 package parser.test;
 
 import parser.*;
-import parser.exception.ParserException;
+import parser.ParserException;
 
 import java.util.List;
 
 public class ExpressionParserTest {
 
-    private static void run(List<String> tests, Parser parser) {
+    private static void run(List<String> tests, ExpressionParser parser) {
         for (String s : tests) {
             System.out.print(s + " ");
             try {
@@ -19,9 +19,9 @@ public class ExpressionParserTest {
 
     }
 
-    public static void main(String[] args) throws ParserException {
+    public static void main(String[] args) {
 
-        Parser parser = new ExpressionParser();
+        ExpressionParser parser = new ExpressionParser();
         List<String> correctTests = List.of(
                 "10",
                 "element",
@@ -65,14 +65,16 @@ public class ExpressionParserTest {
                 "((1>2)+(3=3))",
                 "((1+2)&3)",
                 "(1+((element+1)=3))",
-                "((1000*1000)=(element=element))"
+                "((1000*1000)=(element=element))",
+                "((element*element)+(element-1))<((1+2)<(1+3))"
         );
 
         run(correctTests, parser);
-        System.out.println("============================================");
+        System.out.println("====================================");
         run(syntaxTests, parser);
-        System.out.println("============================================");
+        System.out.println("====================================");
         run(typeTests, parser);
+        System.out.println("====================================");
 
     }
 }

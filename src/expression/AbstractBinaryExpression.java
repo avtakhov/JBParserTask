@@ -1,7 +1,6 @@
 package expression;
 
 import base.Triple;
-import expression.exception.TypeException;
 
 public abstract class AbstractBinaryExpression implements Expression {
 
