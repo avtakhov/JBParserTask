@@ -54,7 +54,7 @@ public class ChainParser {
             }
         }
 
-        return "filter{" + filter.toString() + "}" + "%>%" + "map{" + map.toString() + "}";
+        return "filter{" + filter.getSimple().getExpression().toString() + "}" + "%>%" + "map{" + map.getSimple().getExpression().toString() + "}";
     }
 
     private void checkBrackets(String token, String tmp) throws FunctionCallException {

@@ -22,4 +22,10 @@ public class Const implements Expression {
     public ReturnType getReturnType() {
         return ReturnType.INT;
     }
+
+    @Override
+    public Polynomial getSimple() {
+        return new Polynomial(new int[]{value});
+    }
+
 }

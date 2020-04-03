@@ -11,4 +11,11 @@ public class Add extends AbstractBinaryExpression {
     String getStringValue() {
         return "+";
     }
+
+    @Override
+    public Polynomial getSimple() {
+        Polynomial fp = (Polynomial) first.getSimple();
+        Polynomial sp = (Polynomial) second.getSimple();
+        return fp.add(sp);
+    }
 }

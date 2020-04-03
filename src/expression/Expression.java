@@ -6,4 +6,6 @@ public interface Expression {
 
     ReturnType getReturnType();
 
+    Simple getSimple();
+
 }

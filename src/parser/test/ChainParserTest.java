@@ -40,6 +40,18 @@ public class ChainParserTest {
         System.out.println(tmp + "    " + parser.simplify(tmp));
     }
 
+    @Test
+    public void hard() throws ParserException {
+        String tmp = "filter{(((element*2)*(element+1))<0)}%>%map{(element+1000)}%>%map{(element+1000)}%>%map{(element+1000)}%>%filter{(element>0)}";
+        System.out.println(tmp + "    " + parser.simplify(tmp));
+    }
+
+    @Test
+    public void simplifyMagic() throws ParserException {
+        String tmp = "map{(((element-2)*((element-4)*(element-8)))*(element-16))}%>%filter{(element>-2)}%>%filter{(element>-4)}%>%filter{(element>-8)}%>%filter{(element>-16)}";
+        System.out.println(tmp + "    " + parser.simplify(tmp));
+    }
+
     @Test(expected = ParserException.class)
     public void endBracket() throws ParserException {
         String tmp = "filter{(1<2)}%>%map{element";
@@ -60,11 +72,6 @@ public class ChainParserTest {
     @Test(expected = ParserException.class)
     public void separatorMiddleAnother() throws ParserException {
         String tmp = "map{12}%>%map{(element*2)}%<%filter{(1=0)}";
-        System.out.println(tmp + "    " + parser.simplify(tmp));
-    }
-    @Test
-    public void hard() throws ParserException {
-        String tmp = "filter{(((element*2)*(element+1))<0)}%>%map{(element+1000)}%>%map{(element+1000)}%>%map{(element+1000)}%>%filter{(element>0)}";
         System.out.println(tmp + "    " + parser.simplify(tmp));
     }
 

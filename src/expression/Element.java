@@ -12,6 +12,11 @@ public class Element implements Expression {
     }
 
     @Override
+    public Polynomial getSimple() {
+        return new Polynomial(new int[]{0, 1});
+    }
+
+    @Override
     public String toString() {
         return "element";
     }

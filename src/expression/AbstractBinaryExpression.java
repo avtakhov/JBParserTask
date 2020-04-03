@@ -2,10 +2,12 @@ package expression;
 
 import base.Triple;
 
+import java.util.Objects;
+
 public abstract class AbstractBinaryExpression implements Expression {
 
-    private Expression first;
-    private Expression second;
+    protected Expression first;
+    protected Expression second;
     private final ReturnType returnType;
 
     protected AbstractBinaryExpression(Expression first, Expression second, Triple<ReturnType, ReturnType, ReturnType> expectType) {
@@ -34,5 +36,14 @@ public abstract class AbstractBinaryExpression implements Expression {
     @Override
     public String toString() {
         return "(" + first.toString() + getStringValue() + second.toString() + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || o.getClass() != this.getClass()) {
+            return false;
+        }
+        AbstractBinaryExpression other = (AbstractBinaryExpression) o;
+        return Objects.equals(first, other.first) && Objects.equals(second, other.second);
     }
 }
