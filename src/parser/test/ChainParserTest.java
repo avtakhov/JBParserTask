@@ -1,32 +1,19 @@
 package parser.test;
 
+import org.junit.Test;
 import parser.ChainParser;
 import expression.TypeException;
 import parser.ParserException;
 
 import java.util.List;
 
-public class ChainParserTest {
+public class ChainParserTest extends BaseTest {
 
-    private static void run(List<String> tests, ChainParser parser) {
-        for (String i : tests) {
-            System.out.print(i + "     ");
-            try {
-                System.out.println(parser.simplify(i));
-            } catch (ParserException e) {
-                System.out.println("SYNTAX ERROR " + e.getMessage());
-            } catch (TypeException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
+    private final ChainParser parser = new ChainParser();
 
-    public static void main(String[] args) {
-
-        ExpressionParserTest.main(new String[]{});
-
-        ChainParser parser = new ChainParser();
-        List<String> correctTests = List.of(
+    @Test
+    public void runCorrect() throws ParserException {
+        List<String> tests = List.of(
                 "filter{(1<2)}%>%map{element}",
                 "filter{(element>0)}%>%map{(element*2)}",
                 "filter{(element>10)}%>%filter{(element<20)}",
@@ -38,8 +25,12 @@ public class ChainParserTest {
                 "map{12}%>%map{(element*2)}%>%filter{(1=0)}",
                 "filter{(((element*2)*(element+1))<0)}%>%map{(element+1000)}%>%map{(element+1000)}%>%map{(element+1000)}%>%filter{(element>0)}"
         );
+        run(tests);
+    }
 
-        List<String> syntaxTests = List.of(
+    @Test
+    public void runSyntaxError() throws ParserException {
+        List<String> tests = List.of(
                 "filter{(1<2)}%>%map{element",
                 "filter{(element>0)}%%map{(element*2)}",
                 "filter{(elemnt>10)}%>%filter{(element<20)}",
@@ -57,18 +48,21 @@ public class ChainParserTest {
                 "1",
                 "(1+2)"
         );
-
-        List<String> typeTest = List.of(
-                "filter{(1+element)}",
-                "map{((1+element)<1)}"
-        );
-
-        run(correctTests, parser);
-        System.out.println("====================================");
-        run(syntaxTests, parser);
-        System.out.println("====================================");
-        run(typeTest, parser);
-        System.out.println("====================================");
+        runExpectingError(tests, ParserException.class);
     }
 
+    @Test
+    public void runTypeError() throws ParserException {
+        List<String> tests = List.of(
+                "filter{(1+element)}",
+                "map{((1+element)<1)}"
+
+        );
+        runExpectingError(tests, TypeException.class);
+    }
+
+    @Override
+    void testOne(String test) throws ParserException {
+        parser.simplify(test);
+    }
 }

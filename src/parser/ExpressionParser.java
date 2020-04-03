@@ -6,9 +6,9 @@ import java.util.Set;
 
 public class ExpressionParser extends BaseParser {
 
-    final String ELEMENT = "element";
+    private final String ELEMENT = "element";
 
-    Set<String> operations = Set.of(
+    private static Set<String> operations = Set.of(
             "+",
             "-",
             "*",

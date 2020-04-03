@@ -1,10 +1,12 @@
 package parser;
 
+import base.Asserts;
 import expression.And;
 import expression.Expression;
 import expression.ReturnType;
 import expression.TypeException;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class ChainParser {
@@ -13,9 +15,10 @@ public class ChainParser {
     private final String MAP = "map";
     private final String FILTER = "filter";
 
-    private static void assertEquals(Object first, Object second) {
-        assert Objects.equals(first, second);
-    }
+    private final Map<String, ReturnType> EXPECT_TYPE = Map.of(
+            MAP, ReturnType.INT,
+            FILTER, ReturnType.BOOL
+    );
 
     public String simplify(String s) throws ParserException {
         String[] tokens = s.split("%>%");
@@ -24,38 +27,43 @@ public class ChainParser {
         Expression map = parser.parse("element");
 
         for (String token : tokens) {
-            String tmp = token.startsWith(MAP) ? MAP : FILTER;
-            try {
-                assert tmp.length() < token.length();
-                assertEquals(token.charAt(tmp.length()), '{');
-                assertEquals(token.charAt(token.length() - 1), '}');
-            } catch (AssertionError e) {
-                throw new FunctionCallException("use '{' and '}' with " + tmp + " call");
+            int left = token.indexOf('{');
+            int right = token.lastIndexOf('}');
+            if (right == -1 || left == -1 || right != token.length() - 1) {
+                throw new FunctionCallException("{} error");
+            }
+            Expression expr = parser.parse(token.substring(left + 1, right));
+
+            String tmp = token.substring(0, left);
+
+            if (!EXPECT_TYPE.containsKey(tmp)) {
+                throw new FunctionCallException("unknown function called");
+            }
+            if (expr.getReturnType() != EXPECT_TYPE.get(tmp)) {
+                throw new TypeException(tmp + " must return return " + EXPECT_TYPE.get(tmp));
             }
 
-            Expression expr = parser.parse(token.substring(tmp.length() + 1, token.length() - 1));
-
-            if (token.startsWith(MAP)) {
-                try {
-                    assertEquals(ReturnType.INT, expr.getReturnType());
-                } catch (AssertionError e) {
-                    throw new TypeException("TYPE ERROR");
-                }
-                map = expr.substitution(map);
-            } else if (token.startsWith("filter")) {
-                try {
-                    assertEquals(ReturnType.BOOL, expr.getReturnType());
-                } catch (AssertionError e) {
-                    throw new TypeException("TYPE ERROR");
-                }
-
-                expr = expr.substitution(map);
-                filter = new And(filter, expr);
-            } else {
-                throw new FunctionCallException("unknown call");
+            switch (tmp) {
+                case MAP:
+                    map = expr.substitution(map);
+                    break;
+                case FILTER:
+                    expr = expr.substitution(map);
+                    filter = new And(filter, expr);
+                    break;
             }
         }
 
         return "filter{" + filter.toString() + "}" + "%>%" + "map{" + map.toString() + "}";
+    }
+
+    private void checkBrackets(String token, String tmp) throws FunctionCallException {
+        try {
+            Asserts.assertEquals("'{' error", token.charAt(tmp.length()), '{');
+            Asserts.assertEquals("'}' error", token.charAt(token.length() - 1), '}');
+        } catch (AssertionError e) {
+            throw new FunctionCallException("use '{' and '}' with " + tmp + " call:" + e.getMessage());
+        }
+
     }
 }

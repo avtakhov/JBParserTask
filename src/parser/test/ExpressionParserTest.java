@@ -1,28 +1,28 @@
 package parser.test;
 
+import base.Asserts;
+import expression.TypeException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import parser.*;
 import parser.ParserException;
 
 import java.util.List;
 
-public class ExpressionParserTest {
+public class ExpressionParserTest extends BaseTest {
 
-    private static void run(List<String> tests, ExpressionParser parser) {
-        for (String s : tests) {
-            System.out.print(s + " ");
-            try {
-                System.out.println(parser.parse(s).toString());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
+    ExpressionParser parser = new ExpressionParser();
 
+    @Override
+    protected void testOne(String test) throws ParserException {
+        System.out.println("testing: " + test);
+        Asserts.assertEquals("parser error", test, parser.parse(test).toString());
     }
 
-    public static void main(String[] args) {
-
-        ExpressionParser parser = new ExpressionParser();
-        List<String> correctTests = List.of(
+    @Test
+    public void runCorrectTests() throws Exception {
+        List<String> tests = List.of(
                 "10",
                 "element",
                 "(-1+2)",
@@ -36,8 +36,12 @@ public class ExpressionParserTest {
                 "((1=-2)|(element>((1--3)+(element*3))))",
                 "(-1--1)"
         );
+        run(tests);
+    }
 
-        List<String> syntaxTests = List.of(
+    @Test
+    public void runSyntaxErrorTests() throws ParserException {
+        List<String> tests = List.of(
                 "100000000000000000000000000000",
                 "102-1",
                 "(102)",
@@ -57,8 +61,12 @@ public class ExpressionParserTest {
                 "(+element)",
                 "(--1--1)"
         );
+        runExpectingError(tests, ParserException.class);
+    }
 
-        List<String> typeTests = List.of(
+    @Test
+    public void runTypeErrorTests() throws ParserException {
+        List<String> tests = List.of(
                 "(1+(1>element))",
                 "(1=(3=3))",
                 "(element<(element<0))",
@@ -66,15 +74,8 @@ public class ExpressionParserTest {
                 "((1+2)&3)",
                 "(1+((element+1)=3))",
                 "((1000*1000)=(element=element))",
-                "((element*element)+(element-1))<((1+2)<(1+3))"
+                "(((element*element)+(element-1))<((1+2)<(1+3))))"
         );
-
-        run(correctTests, parser);
-        System.out.println("====================================");
-        run(syntaxTests, parser);
-        System.out.println("====================================");
-        run(typeTests, parser);
-        System.out.println("====================================");
-
+        runExpectingError(tests, TypeException.class);
     }
 }
