@@ -1,5 +1,9 @@
 package parser;
 
+import base.Asserts;
+
+import java.util.Arrays;
+
 public class BaseParser {
     final int BUFFER_SIZE = 10;
     protected final char[] buffer = new char[BUFFER_SIZE];
@@ -32,6 +36,15 @@ public class BaseParser {
     protected boolean test(char expected) {
         if (getCh() == expected) {
             nextChar();
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean test(String s) {
+        Asserts.assertTrue("string test over of buffer", s.length() <= buffer.length);
+        if (String.valueOf(buffer, 0, s.length()).equals(s)) {
+            skipChars(s.length());
             return true;
         }
         return false;

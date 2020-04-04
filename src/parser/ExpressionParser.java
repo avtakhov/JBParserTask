@@ -65,19 +65,16 @@ public class ExpressionParser extends BaseParser {
     }
 
     private String parseOperation() throws ParserException {
-        for (int i = BUFFER_SIZE; i > 0; i--) {
-            String s = String.copyValueOf(buffer, 0, i);
-            if (operations.contains(s)) {
-                skipChars(s.length());
-                return s;
+        for (String op : operations) {
+            if (test(op)) {
+                return op;
             }
         }
         throw new UnknownTokenException("Invalid operator");
     }
 
     private Expression parseSimple() throws ParserException {
-        if (String.copyValueOf(buffer, 0, ELEMENT.length()).equals(ELEMENT)) {
-            skipChars(ELEMENT.length());
+        if (test(ELEMENT)) {
             return new Element();
         } else {
             return parseConstant();
@@ -86,9 +83,8 @@ public class ExpressionParser extends BaseParser {
 
     private Const parseConstant() throws ParserException {
         StringBuilder sb = new StringBuilder();
-        if (getCh() == '-') {
-            sb.append(getCh());
-            nextChar();
+        if (test('-')) {
+            sb.append('-');
         }
         while (Character.isDigit(getCh())) {
             sb.append(getCh());
