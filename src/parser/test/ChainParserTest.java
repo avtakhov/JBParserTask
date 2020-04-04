@@ -1,6 +1,5 @@
 package parser.test;
 
-import base.Asserts;
 import org.junit.Test;
 import parser.ChainParser;
 import expression.TypeException;
@@ -52,6 +51,12 @@ public class ChainParserTest {
         System.out.println(tmp + "    " + parser.simplify(tmp));
     }
 
+    @Test
+    public void simplifyEqual() throws ParserException {
+        String tmp = "map{(element+1)}%>%filter{((element-1)>(element*element))}";
+        System.out.println(tmp + "    " + parser.simplify(tmp));
+    }
+
     @Test(expected = ParserException.class)
     public void endBracket() throws ParserException {
         String tmp = "filter{(1<2)}%>%map{element";
@@ -84,6 +89,12 @@ public class ChainParserTest {
     @Test(expected = TypeException.class)
     public void filterInt() throws ParserException {
         String tmp = "filter{42}";
+        parser.simplify(tmp);
+    }
+
+    @Test(expected = TypeException.class)
+    public void filterHardInt() throws ParserException {
+        String tmp = "filter{(element+(element-(element+(element-42))))}";
         parser.simplify(tmp);
     }
 

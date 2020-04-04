@@ -8,8 +8,13 @@ public class Greater extends AbstractBinaryExpression {
     }
 
     @Override
-    String getStringValue() {
+    protected String getStringValue() {
         return ">";
+    }
+
+    @Override
+    public ReturnType getReturnType() {
+        return ReturnType.BOOL;
     }
 
     @Override

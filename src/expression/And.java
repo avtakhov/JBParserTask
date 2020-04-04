@@ -8,8 +8,13 @@ public class And extends AbstractBinaryExpression {
     }
 
     @Override
-    String getStringValue() {
+    protected String getStringValue() {
         return "&";
+    }
+
+    @Override
+    public ReturnType getReturnType() {
+        return ReturnType.BOOL;
     }
 
     @Override

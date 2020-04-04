@@ -70,6 +70,7 @@ public class Polynomial implements Simple {
         return expr;
     }
 
+    @Override
     public Expression getExpression() {
         if (isZero()) {
             return new Const(0);

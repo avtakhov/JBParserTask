@@ -8,8 +8,13 @@ public class Add extends AbstractBinaryExpression {
     }
 
     @Override
-    String getStringValue() {
+    protected String getStringValue() {
         return "+";
+    }
+
+    @Override
+    public ReturnType getReturnType() {
+        return ReturnType.INT;
     }
 
     @Override
