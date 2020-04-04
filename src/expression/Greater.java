@@ -25,6 +25,9 @@ public class Greater extends AbstractBinaryExpression {
         if (r.degree() == 0) {
             return r.getArr()[0] > 0 ? BooleanValues.TRUE : BooleanValues.FALSE;
         }
+        if (r.isZero()) {
+            return BooleanValues.FALSE;
+        }
         BooleanValues ans = BooleanValues.UNKNOWN;
         ans.setExpression(new Greater(r.getExpression(), new Const(0)));
         return ans;
