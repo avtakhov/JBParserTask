@@ -10,71 +10,43 @@ public class ExpressionParserTest {
 
     ExpressionParser parser = new ExpressionParser();
 
+    void run(String expected, String test) throws ParserException {
+        Asserts.assertEquals("", expected, parser.parse(test).toString());
+    }
+
     @Test
     public void cnst() throws ParserException {
-        String tmp = "42";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void negate() throws ParserException {
-        String tmp = "-10";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void minInt() throws ParserException {
-        String tmp = Integer.toString(Integer.MIN_VALUE);
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
+        run("42", "42");
+        run("-10", "-10");
+        run(Integer.toString(Integer.MIN_VALUE), Integer.toString(Integer.MIN_VALUE));
     }
 
     @Test
     public void element() throws ParserException {
-        String tmp = "element";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void simple() throws ParserException {
-        String tmp = "(1+2)";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void elementGreater() throws ParserException {
-        String tmp = "(element>0)";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void elementLess() throws ParserException {
-        String tmp = "(element<10)";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
+        run("element", "element");
+        run("(element+1)", "(element+1)");
+        run("(element--42)", "(element--42)");
+        run("(element+element)", "(element+element)");
     }
 
     @Test
     public void medium() throws ParserException {
-        String tmp = "((element<0)|(element=0))";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
-    }
-
-    @Test
-    public void mediumConst() throws ParserException {
-        String tmp = "(20391093+(-1+(-1--913993929)))";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
+        run("((element<0)|(element=0))", "((element<0)|(element=0))");
+        run("(20391093+(-1+(-1--913993929)))", "(20391093+(-1+(-1--913993929)))");
     }
 
     @Test
     public void bool() throws ParserException {
-        String tmp = "(((-1<2)|(1>(2-1)))|(element>1000))";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
+        run("(((-1<2)|(1>(2-1)))|(element>1000))", "(((-1<2)|(1>(2-1)))|(element>1000))");
+        run("((element+1)<element)", "((element+1)<element)");
+        run("((((element<0)&(element>-42))|(element=-42))|(element=0))", "((((element<0)&(element>-42))|(element=-42))|(element=0))");
     }
 
     @Test
-    public void mediumMinInt() throws ParserException {
+    public void MinInt() throws ParserException {
         String minInt = Integer.toString(Integer.MIN_VALUE);
         String tmp = "((" + minInt + "-" + minInt + ")>(element*" + minInt + "))";
-        Asserts.assertEquals("", tmp, parser.parse(tmp).toString());
+        run(tmp, tmp);
     }
 
     @Test
@@ -97,137 +69,106 @@ public class ExpressionParserTest {
 
     @Test(expected = ParserException.class)
     public void overflowConstant() throws ParserException {
-        String tmp = "1000000000000000000000000";
-        parser.parse(tmp);
+        run("", "10000000000000000000000000");
     }
 
     @Test(expected = ParserException.class)
     public void invalidElement() throws ParserException {
-        String tmp = "elementt";
-        parser.parse(tmp);
+        run("", "lement");
+        run("", "(1-elememt)");
+        run("", "elemen");
+        run("", "elemeent");
+        run("", "element@");
     }
 
     @Test(expected = ParserException.class)
-    public void invalidElement2() throws ParserException {
-        String tmp = "elemen";
-        parser.parse(tmp);
-    }
-
-    @Test(expected = ParserException.class)
-    public void invalidElement3() throws ParserException {
-        String tmp = "elemeent";
-        parser.parse(tmp);
-    }
-
-    @Test(expected = ParserException.class)
-    public void insertSymbolMiddle() throws ParserException {
-        String tmp = "(1#0-3)";
-        parser.parse(tmp);
-    }
-
-    @Test(expected = ParserException.class)
-    public void insertSymbolEnd() throws ParserException {
-        String tmp = "(10-3)#";
-        parser.parse(tmp);
+    public void insertSymbol() throws ParserException {
+        run("", "(1#0-3)");
+        run("", "(10-3)#");
+        run("", "#(-42+90)");
+        run("", "(-42+#90)");
+        run("", "(-42+90#)");
     }
 
     @Test(expected = ParserException.class)
     public void fullInvalid() throws ParserException {
-        String tmp = "-8t4t2t";
-        parser.parse(tmp);
+        run("", "-8t4t2t");
     }
 
     @Test(expected = ParserException.class)
     public void noFirstArgument() throws ParserException {
-        String tmp = "(>element)";
-        parser.parse(tmp);
+        run("", "(>element)");
     }
 
     @Test(expected = ParserException.class)
     public void noLastArgument() throws ParserException {
-        String tmp = "(element=)";
-        parser.parse(tmp);
+        run("", "(element=))");
     }
 
     @Test(expected = ParserException.class)
     public void onlyBrackets() throws ParserException {
-        String tmp = "()";
-        parser.parse(tmp);
+        run("", "()");
+        run("", "((element+1))");
     }
 
     @Test(expected = ParserException.class)
     public void elementInBrackets() throws ParserException {
-        String tmp = "(element)";
-        parser.parse(tmp);
+        run("", "(element)");
     }
 
     @Test(expected = ParserException.class)
     public void invalidOperator() throws ParserException {
-        String tmp = "(element*|*element)";
-        parser.parse(tmp);
-    }
-
-    @Test(expected = ParserException.class)
-    public void doubleMinus() throws ParserException {
-        String tmp = "(element--element)";
-        parser.parse(tmp);
+        run("", "(element*|element)");
+        run("", "(element--element)");
+        run("", "(element$element)");
+        run("", "(-42-+1)");
     }
 
     @Test(expected = ParserException.class)
     public void noBrackets() throws ParserException {
-        String tmp = "(element>0)-(123+123)";
-        parser.parse(tmp);
+        run("", "(element>0)-(123+123)");
     }
 
     @Test(expected = ParserException.class)
     public void spaces() throws ParserException {
-        String tmp = "(1 + 2)";
-        parser.parse(tmp);
+        run("", "(1 + 2)");
+        run("", "- 42");
     }
 
     @Test(expected = TypeException.class)
-    public void equalToBool() throws ParserException {
-        String tmp = "((1+2)=(element>1))";
-        parser.parse(tmp);
+    public void equalBool() throws ParserException {
+        run("", "((1+2)=(element>1))");
     }
 
     @Test(expected = TypeException.class)
-    public void lessInt() throws ParserException {
-        String tmp = "(element<(element<element))";
-        parser.parse(tmp);
+    public void lessBool() throws ParserException {
+        run("", "(element<(element<element))");
     }
 
     @Test(expected = TypeException.class)
     public void AndInt() throws ParserException {
-        String tmp = "((element>1)&0)";
-        parser.parse(tmp);
+        run("", "((element>1)&0)");
     }
 
     @Test(expected = TypeException.class)
-    public void OrIntInt() throws ParserException {
-        String tmp = "(1|1)";
-        parser.parse(tmp);
+    public void OrInt() throws ParserException {
+        run("", "(-42|1)");
+        run("", "((element>0)|0)");
     }
 
     @Test(expected = TypeException.class)
     public void MulBool() throws ParserException {
-        String tmp = "(((element+element)<42)*(77+42))";
-        parser.parse(tmp);
+        run("", "(((element+element)<42)*(77+42))");
     }
     @Test(expected = TypeException.class)
-    public void SubBoolBool() throws ParserException {
-        String tmp = "(((1+2)<3)-((element=element)&(element>element)))";
-        parser.parse(tmp);
+    public void SubBool() throws ParserException {
+        run("", "(((1+2)<3)-((element=element)&(element>element)))");
+        run("", "(element-(1=0))");
+        run("", "((element=0)--42)");
     }
 
     @Test(expected = TypeException.class)
-    public void EqBoolBool() throws ParserException {
-        String tmp = "((1=1)=(element=(42+42)))";
-        parser.parse(tmp);
-    }
-    @Test(expected = TypeException.class)
-    public void hardType() throws ParserException {
-        String tmp = "(((1+2)*(3+4))*(((5+6)*(7+8))*(element>(element*element))))";
-        parser.parse(tmp);
+    public void EqBool() throws ParserException {
+        run("", "((1=1)=(element=(42+42)))");
     }
 }
